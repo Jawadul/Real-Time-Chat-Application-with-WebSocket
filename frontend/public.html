@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Chat Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        #chat {
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            width: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        #messages {
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+            padding-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #chat input {
+            width: 80%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-right: 10px;
+        }
+        #chat button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="chat">
+    <h2>Real-Time Chat</h2>
+    <input type="text" id="roomName" placeholder="Enter Room Name" />
+    <button onclick="joinRoom()">Join Room</button>
+
+    <div id="messages"></div>
+
+    <input type="text" id="msgInput" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    let roomName = '';
+    
+    // Join room function
+    function joinRoom() {
+        roomName = document.getElementById('roomName').value;
+        if (roomName !== '') {
+            socket.emit('joinRoom', roomName);
+        }
+    }
+
+    // Send message function
+    function sendMessage() {
+        const msg = document.getElementById('msgInput').value;
+        if (msg !== '') {
+            socket.emit('chatMessage', msg, roomName);
+            document.getElementById('msgInput').value = '';
+        }
+    }
+
+    // Listen for messages from server and display in UI
+    socket.on('message', (msg) => {
+        const msgContainer = document.createElement('div');
+        msgContainer.textContent = msg;
+        document.getElementById('messages').appendChild(msgContainer);
+        document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+    });
+</script>
+
+</body>
+</html>
